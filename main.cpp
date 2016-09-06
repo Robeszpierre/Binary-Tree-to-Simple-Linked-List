@@ -44,7 +44,6 @@ public:
 		return true;
 	}
 
-
 	Node<T> ** findYoungestSon(Node<T> ** & p){
 		Node<T> ** tmp = p;
 		tmp = &(*tmp)->sons[0];
@@ -92,24 +91,31 @@ public:
 	}
 	
 
-	Node<T> binTreeToSimpleList (Node<T> * & node) {
-		if ( !node )
-			return *node;
-		Node<T> * tmp = node->sons[1];
-		if( node->sons[0] ){
-			node->sons[1] = node->sons[0];
-			node->sons[0] = NULL;
-			(*node) = binTreeToSimpleList ( node->sons[1] );
+	Node<T> * binTreeToSimpleList (Node<T> ** current) {
+		if ( !(*current) )
+			return *current;
+		//Guarda el hijo derecho en un temporal.
+		Node<T> * tmp = (*current)->sons[1];
+		//Reorganiza los nodos empezando por el hijo izquiero izquierda.
+		if( (*current)->sons[0] ){
+			(*current)->sons[1] = (*current)->sons[0];
+			(*current)->sons[0] = NULL;
+			(*current) = binTreeToSimpleList ( &((*current)->sons[1]) );
 		}
+		//Una vez que termina de reorganizar todos los nodos que estan a la izquierda de la cabeza (head)
+		//Empieza a reorganizar los hijos de la derecha de la cabeza (head) añadiendolos al hijo derecho
+		//del último nodo de la rama izquierda.
 		if( tmp ){
-			node->sons[1] = tmp;
-			(*node) = binTreeToSimpleList ( node->sons[1] );
+			(*current)->sons[1] = tmp;
+			(*current) = binTreeToSimpleList ( &((*current)->sons[1]) );
 		}
-		return *node;
+		return (*current);
 	}
+	//Al final todos los nodos hijos izquierdos serán NULL y la lista estará en los hijos derechos.
 
-	Node<T> binTreeToSimpleList (){
-		return binTreeToSimpleList( head );
+	Node<T> * binTreeToSimpleList (){
+		Node<T>** p = &head;
+		binTreeToSimpleList(p);
 	}
 
 	~binTree(){}
@@ -129,9 +135,9 @@ int main(){
 
 	a.display();
 	cout<<endl<<endl<<endl;
-	Node<int> newList = a.binTreeToSimpleList ();
+	Node<int> * newList = a.binTreeToSimpleList ();
 
-	//a.display();
+	a.display();
 
 	cout<<"hello world!"<<endl;
 	return 0;
